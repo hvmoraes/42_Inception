@@ -32,10 +32,6 @@ echo "GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY '$ROOT_PASSWORD'; FLUSH PRIVI
 #Create database and user in the database for wordpress
 
 echo "CREATE DATABASE IF NOT EXISTS $DATABASE; GRANT ALL ON $DATABASE.* TO '$USER'@'%' IDENTIFIED BY '$PASSWORD'; FLUSH PRIVILEGES;" | mysql -u root
-
-#Import database in the mysql command line
-#mysql -uroot -p$ROOT_PASSWORD $DATABASE < /usr/local/bin/wordpress.sql
-
 fi
 
 /etc/init.d/mysql stop
