@@ -3,7 +3,6 @@ FROM	debian:buster
 # Install everything needed
 RUN		apt-get update -y && apt-get upgrade -y && apt-get install -y nginx openssl
 
-# nginx SSL
 RUN mkdir /etc/nginx/ssl
 RUN openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \
        -out /etc/nginx/ssl/hcorrea-.crt \
