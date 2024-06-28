@@ -1,22 +1,23 @@
 #!/bin/sh
 
-# Check if wp-config.php exist
-if [ -f ./wp-config.php ]
-then
-	echo "Error! Wordpress already downloaded"
+if [ -f ./wp-config.php ]; then
+    echo "WordPress is already configured."
 else
+    wget http://wordpress.org/latest.tar.gz
+    tar xfz latest.tar.gz
+    mv wordpress/* .
+    rm -rf latest.tar.gz wordpress
 
-# Download wordpress
-wget http://wordpress.org/latest.tar.gz
-tar xfz latest.tar.gz
-mv wordpress/* .
-rm -rf latest.tar.gz
-rm -rf wordpress
+    sed -e "s/database_name_here/$MYSQL_DATABASE/g" \
+        -e "s/username_here/$MYSQL_USER/g" \
+        -e "s/password_here/$MYSQL_PASSWORD/g" \
+        -e "s/localhost/$MYSQL_HOSTNAME/g" \
+        wp-config-sample.php > wp-config.php
 
-# Import env variables in the .env file
-sed -i "s/username_here/$MYSQL_USER/g" wp-config-sample.php
-sed -i "s/password_here/$MYSQL_PASSWORD/g" wp-config-sample.php
-sed -i "s/localhost/$MYSQL_HOSTNAME/g" wp-config-sample.php
-sed -i "s/database_name_here/$MYSQL_DATABASE/g" wp-config-sample.php
-cp wp-config-sample.php wp-config.php
+    chown www-data:www-data wp-config.php
+    chmod 640 wp-config.php
+
+    echo "WordPress downloaded and configured."
 fi
+
+/usr/sbin/php-fpm7.4 -F 

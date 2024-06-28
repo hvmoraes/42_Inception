@@ -1,39 +1,25 @@
 #!/bin/sh
 
-mysql_install_db
+set -e
 
-/etc/init.d/mysql start
+mkdir -p /run/mysqld
+chown -R mysql:mysql /run/mysqld
+chmod 755 /run/mysqld
 
-# Check if the database exists
+service mariadb start
 
-if [ -d "/var/lib/mysql/$DATABASE" ]
-then 
-	echo "Error! Database already exists"
-else
+sleep 5
 
-# Set root option so that connexion without root password is not possible
+echo "GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD'; FLUSH PRIVILEGES;" | mysql -uroot -p"$MYSQL_ROOT_PASSWORD"
 
-mysql_secure_installation << _EOF_
+echo "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;" | mysql -uroot -p"$MYSQL_ROOT_PASSWORD"
 
-Y
-42pass
-42pass
-Y
-n
-Y
-Y
-_EOF_
+echo "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" | mysql -uroot -p"$MYSQL_ROOT_PASSWORD"
+echo "CREATE USER '$MYSQL_ADMIN'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" | mysql -uroot -p"$MYSQL_ROOT_PASSWORD"
 
-# Add a root user on 127.0.0.1 to allow remote connexion 
-# Flush privileges allow to your sql tables to be updated automatically when you modify it
-# mysql -uroot launch mysql command line client
-echo "GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY '$ROOT_PASSWORD'; FLUSH PRIVILEGES;" | mysql -uroot
+echo "GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%'; FLUSH PRIVILEGES;" | mysql -uroot -p"$MYSQL_ROOT_PASSWORD"
+echo "GRANT ALL PRIVILEGES ON *.* TO '$MYSQL_ADMIN'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;" | mysql -uroot -p"$MYSQL_ROOT_PASSWORD"
 
-# Create database and user in the database for wordpress
-
-echo "CREATE DATABASE IF NOT EXISTS $DATABASE; GRANT ALL ON $DATABASE.* TO '$USER'@'%' IDENTIFIED BY '$PASSWORD'; FLUSH PRIVILEGES;" | mysql -u root
-fi
-
-/etc/init.d/mysql stop
+service mariadb stop
 
 exec "$@"
