@@ -30,5 +30,3 @@ ENTRYPOINT ["/usr/local/bin/wp_conf.sh"]
 WORKDIR /var/www/html
 
 EXPOSE 9000
-
-CMD ["/usr/sbin/php-fpm7.4", "-F"]
