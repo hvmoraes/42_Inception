@@ -1,14 +1,14 @@
-FROM debian:bullseye
+FROM debian:buster
 
-RUN apt-get update -y && apt-get upgrade -y && apt-get install -y mariadb-server mariadb-client vim
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt -y update && apt -y upgrade
+RUN apt install -y 	mariadb-server \
+			vim \
+			procps
 
-# Copy of the .sh in the /bin of the container to be able to run the program
-# Give the right to execute + launch the .sh
+COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 COPY ./tools/mariadb.sh /usr/local/bin/
-#COPY ./conf/wp-comments.sql /usr/local/bin/
+
 RUN chmod +x /usr/local/bin/mariadb.sh
 
-ENTRYPOINT [ "/usr/local/bin/mariadb.sh" ]
-
-EXPOSE 3306
+ENTRYPOINT ["/usr/local/bin/mariadb.sh"]
+CMD ["mysqld_safe"]
