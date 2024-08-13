@@ -39,13 +39,13 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /home/kasakh/data/wordpress
+      device: /home/hcorrea-/data/wordpress
       o: bind
   mariadb_data:
     driver: local
     driver_opts:
       type: none
-      device: /home/kasakh/data/mariadb
+      device: /home/hcorrea-/data/mariadb
       o: bind
 
 networks:
