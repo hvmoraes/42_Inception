@@ -6,8 +6,8 @@ service mysql start
 # Wait for MySQL to be fully started
 sleep 5
 
-echo "[.] Writing MySQL Instructions"
-cat << EOF > mariadb.sql
+echo "[.] Running MySQL Instructions ..."
+mysql -u root <<EOF
 GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
 FLUSH PRIVILEGES;
 CREATE DATABASE IF NOT EXISTS $WP_DB_NAME;
@@ -17,11 +17,8 @@ FLUSH PRIVILEGES;
 USE $WP_DB_NAME;
 EOF
 
-echo "[.] Running MySQL Instructions ..."
-mysql -u root < mariadb.sql
-
-echo "[.] Stopping MySQL Service ..."
-service mysql stop
+# echo "[.] Stopping MySQL Service ..."
+# service mysql stop
 
 echo "[.] Running MySQL Daemon ..."
-exec $@
+exec "$@"

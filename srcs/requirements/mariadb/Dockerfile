@@ -5,7 +5,7 @@ RUN apt install -y 	mariadb-server \
 			vim \
 			procps
 
-COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+COPY ./conf/mysql.cnf /etc/mysql/mariadb.conf.d/mysql.cnf
 COPY ./tools/mariadb.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/mariadb.sh
