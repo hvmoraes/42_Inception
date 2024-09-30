@@ -17,8 +17,8 @@ FLUSH PRIVILEGES;
 USE $WP_DB_NAME;
 EOF
 
-# echo "[.] Stopping MySQL Service ..."
-# service mysql stop
+echo "[.] Stopping MySQL Service ..."
+service mysql stop
 
 echo "[.] Running MySQL Daemon ..."
 exec "$@"
