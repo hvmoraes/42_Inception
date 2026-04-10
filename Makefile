@@ -1,10 +1,11 @@
 NAME = inception
 NGINX_DIR = srcs/requirements/nginx
+DATA_DIR = /home/$(USER)/data
 
 all: ${NAME}
 
 ${NAME}:
-	@sudo mkdir -p /home/hcorrea-/data/wordpress /home/hcorrea-/data/mariadb
+	@sudo mkdir -p $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb
 	@sudo docker compose -f ./srcs/docker-compose.yml up -d --build
 
 down:
@@ -16,7 +17,7 @@ clean:
 	@sudo docker images -qa | xargs -r sudo docker rmi -f
 	@sudo docker volume ls -q | xargs -r sudo docker volume rm
 	@sudo docker network ls --format '{{.Name}}' | grep -vE 'bridge|host|none' | xargs -r sudo docker network rm
-	@sudo rm -rf /home/hcorrea-/data/wordpress /home/hcorrea-/data/mariadb
+	@sudo rm -rf $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb
 
 re: down clean all
 

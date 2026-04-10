@@ -2,9 +2,10 @@ FROM debian:bullseye
 
 RUN apt-get update -y \
     && apt-get upgrade -y \
-    && apt-get install -y \
+    && apt-get install -y --no-install-recommends \
     wget \
     curl \
+    ca-certificates \
     bash \
     php \
     php-cgi \
@@ -30,6 +31,12 @@ RUN chmod +x /usr/local/bin/wp_conf.sh
 
 WORKDIR /var/www/html
 
+# Ensure www-data owns the working directory
+RUN chown -R www-data:www-data /var/www/html /run/php
+
 EXPOSE 9000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD php-fpm7.4 -t || exit 1
 
 ENTRYPOINT ["/usr/local/bin/wp_conf.sh"]

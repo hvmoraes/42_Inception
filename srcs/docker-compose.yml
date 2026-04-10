@@ -7,6 +7,9 @@ services:
     volumes:
       - wordpress_data:/var/www/html  
     restart: always
+    depends_on:
+      wordpress:
+        condition: service_healthy
     networks:
       - network
 
@@ -18,21 +21,36 @@ services:
     restart: always
     env_file:
       - .env
+    secrets:
+      - mysql_root_password
+      - wp_db_pass
     networks:
       - network
 
   wordpress:
     container_name: wordpress
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     build: ./requirements/wordpress
     volumes:
       - wordpress_data:/var/www/html
     restart: always
     env_file:
       - .env
+    secrets:
+      - wp_db_pass
+      - wp_admin_pass
     networks:
       - network
+
+secrets:
+  mysql_root_password:
+    file: ./secrets/mysql_root_password.txt
+  wp_db_pass:
+    file: ./secrets/wp_db_pass.txt
+  wp_admin_pass:
+    file: ./secrets/wp_admin_pass.txt
 
 volumes:
   wordpress_data:

@@ -1,5 +1,20 @@
 #!/bin/sh
 
+# Load secrets from Docker secrets if available, else use env vars
+if [ -f /run/secrets/wp_db_pass ]; then
+    WP_DB_PASS=$(cat /run/secrets/wp_db_pass)
+fi
+if [ -f /run/secrets/wp_admin_pass ]; then
+    WP_ADMIN_PASS=$(cat /run/secrets/wp_admin_pass)
+fi
+
+# Wait for MariaDB to be ready before proceeding
+echo "[.] Waiting for MariaDB at $MYSQL_HOSTNAME ..."
+for i in $(seq 1 60); do
+    mysql -h "$MYSQL_HOSTNAME" -u "$WP_DB_USER" -p"$WP_DB_PASS" -e "SELECT 1;" > /dev/null 2>&1 && break
+    sleep 1
+done
+
 if [ -f ./wp-config.php ]; then
     echo "WordPress is already configured."
 else
@@ -19,20 +34,11 @@ else
 
     echo "WordPress files downloaded and 'wp-config.php' created."
 
-    # Verify database connection
-	sleep 6
-    mysql -h $MYSQL_HOSTNAME -u $WP_DB_USER -p"$WP_DB_PASS" -e "SELECT 1;" || {
-        echo "Error connecting to database.";
-        exit 1;
-    }
-
     if [ ! -f "/var/www/html/index.html" ]; then
         wp --allow-root core download
         wp --allow-root config create --dbname=$WP_DB_NAME --dbuser=$WP_DB_USER --dbpass=$WP_DB_PASS --dbhost=$MYSQL_HOSTNAME --dbcharset="utf8" --dbcollate="utf8_general_ci"
         wp --allow-root core install --url=$DOMAIN --title=$WP_TITLE --admin_user=$WP_ADMIN_USER --admin_password=$WP_ADMIN_PASS --admin_email=$WP_ADMIN_MAIL
         wp --allow-root user create $WP_USER $WP_MAIL --role=author --user_pass=$WP_PASS
-        #wp --allow-root theme install inspiro --activate
-        #wp --allow-root plugin update --all 
 
         echo "WordPress configured."
     fi
